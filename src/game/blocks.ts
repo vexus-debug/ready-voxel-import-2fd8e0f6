@@ -490,19 +490,12 @@ export function drawAtlas(): HTMLCanvasElement {
     else if (fv > 0.955) col = mul(col, 1.15);
     return col;
   };
-  const glassT = (frame: number[], pane: number[], glow: number) => (u: number, v: number, n: number) => {
-    const e = Math.min(u, v, 1 - u, 1 - v);
-    if (e < 0.05) return mul(frame, 0.85 + (e < 0.015 ? 0.4 : 0) + n * 0.06);
-    if (Math.abs(u - 0.5) < 0.012) return mul(frame, 1.1); // mullion
-    let col = mix(pane, mul(pane, 0.5), v * 0.8 + N(u, v, 2, 2) * 0.2);
-    const streak = Math.abs(u - v * 0.7 - 0.15);
-    if (streak < 0.05) col = mix(col, [240, 250, 255], 0.35 * (1 - streak / 0.05));
-    if (glow) {
-      const band = Math.abs(((v * 4) % 1) - 0.5);
-      if (band < 0.1) col = mix(col, [255, 255, 255], glow * (1 - band / 0.1));
-      else if (band < 0.2) col = mix(col, mul(pane, 1.4), glow * 0.6); // chromatic halo
-    }
-    return mul(col, 0.97 + (n - 0.5) * 0.03);
+  // frameless polarized smart-glass: smooth tint gradient + faint data scanlines
+  const glassT = (_frame: number[], pane: number[], glow: number) => (u: number, v: number, n: number) => {
+    let col = mix(mul(pane, 1.1), mul(pane, 0.6), v * 0.9 + N(u, v, 2, 2) * 0.1);
+    if (((v * 32) % 1) < 0.12) col = mul(col, 1.08);
+    if (glow) col = mix(col, mul(pane, 1.5), glow * (1 - Math.abs(v - 0.5) * 2));
+    return mul(col, 0.98 + (n - 0.5) * 0.02);
   };
   const lamp = (core: number[], rim: number[]) => (u: number, v: number, n: number) => {
     const e = Math.min(u, v, 1 - u, 1 - v);
@@ -530,12 +523,7 @@ export function drawAtlas(): HTMLCanvasElement {
   put(49, glassT([20, 40, 48], [40, 220, 240], 0.35));
   put(50, glassT([40, 20, 40], [240, 60, 200], 0.35));
   put(51, px((x, y) => (x % 4 === 1 || y === 0 || y === 15 ? [70, 74, 80, 255] : [0, 0, 0, 0])));
-  put(52, (u, v, n) => {
-    const e = Math.min(u, v, 1 - u, 1 - v);
-    if (e < 0.06) return mul([120, 200, 210], 0.9 + n * 0.1);
-    const s = Math.abs(Math.sin(u * Math.PI * 4)) * Math.abs(Math.sin(v * Math.PI * 4));
-    return mix([150, 220, 225], [235, 255, 255], s + N(u, v, 8, 2) * 0.3);
-  });
+  put(52, (u, v) => mix([200, 250, 255], [90, 210, 230], Math.abs(v - 0.5) * 2)); // seamless light panel
   put(53, lamp([255, 190, 80], [160, 110, 50]));
   put(54, lamp([120, 240, 255], [60, 70, 90]));
   put(55, lamp([255, 80, 220], [70, 40, 80]));
