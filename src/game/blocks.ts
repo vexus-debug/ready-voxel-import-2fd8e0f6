@@ -116,6 +116,22 @@ const CYBER: [number, string, number, Tool | null, boolean?][] = [
 ];
 for (const [id, name, hardness, tool, transparent] of CYBER)
   BLOCKS[id] = { name, hardness, tool, tiles: [id + 4, id + 4, id + 4], drop: id, transparent };
+
+/** Legacy medieval/natural IDs -> modern equivalents (0 = remove). Applied at Linefield ingestion. */
+export const REMAP: Record<number, number> = {
+  [B.LOG]: B.PANEL_DARK, [B.PLANKS]: B.PANEL_DARK, [B.TIMBER]: B.METAL, [B.DOOR]: B.PANEL_DARK, [B.THATCH]: B.PANEL_DARK,
+  [B.BRICK]: B.TERRA_TEAL, [B.STONE_BRICK]: B.PANEL_GRAY, [B.MOSSY_BRICK]: B.PANEL_GRAY, [B.STONE]: B.PANEL_GRAY, [B.PLASTER]: B.PANEL_GRAY,
+  [B.GLASS]: B.TINT_GLASS, [B.IRON_BARS]: B.METAL,
+  [B.COBBLE]: B.CONCRETE, [B.BOULDER]: B.CONCRETE, [B.DIRT]: B.ASPHALT, [B.GRASS]: B.ASPHALT, [B.JUNGLE_GRASS]: B.ASPHALT, [B.SAND]: B.CONCRETE,
+  [B.LANTERN]: B.NEON_ROD, [B.WATER]: B.TINT_GLASS,
+  [B.LEAVES]: 0, [B.TALLGRASS]: 0, [B.FLOWER]: 0, [B.REED]: 0, [B.ALOE]: 0, [B.FERN]: 0,
+};
+// purge legacy textures: legacy blocks render with their modern counterpart's metal/panel/composite tiles
+for (const k in REMAP) {
+  const to = REMAP[+k];
+  if (to && BLOCKS[+k] && BLOCKS[to]) { BLOCKS[+k].tiles = [...BLOCKS[to].tiles]; BLOCKS[+k].tool = BLOCKS[to].tool; BLOCKS[+k].transparent = BLOCKS[to].transparent; }
+}
+export const remapId = (id: number) => (id in REMAP ? REMAP[id] : id);
 const EMISSIVE = new Set<number>([B.LANTERN, B.SEA_LANTERN, B.GLOWSTONE, B.NEON_ROD, B.NEON_MAGENTA, B.GLASS_CYAN, B.GLASS_MAGENTA, B.GLASS_GREEN]);
 export const isEmissive = (id: number) => EMISSIVE.has(id);
 
@@ -124,15 +140,15 @@ export type Item =
   | { kind: "block"; block: number; name: string; tile: number };
 
 export const HOTBAR: Item[] = [
-  { kind: "tool", tool: "pickaxe", name: "Pickaxe", tile: 13, damage: 4 },
-  { kind: "tool", tool: "axe", name: "Axe", tile: 14, damage: 5 },
-  { kind: "tool", tool: "shovel", name: "Shovel", tile: 15, damage: 3 },
-  { kind: "block", block: B.DIRT, name: "Red Laterite", tile: 2 },
-  { kind: "block", block: B.COBBLE, name: "Granite Rubble", tile: 9 },
-  { kind: "block", block: B.LOG, name: "Acacia Log", tile: 4 },
-  { kind: "block", block: B.PLANKS, name: "Iroko Planks", tile: 8 },
-  { kind: "block", block: B.SAND, name: "Sand", tile: 7 },
-  { kind: "block", block: B.BRICK, name: "Terracotta Brick", tile: 10 },
+  { kind: "block", block: B.PANEL_DARK, name: "Dark Panel", tile: B.PANEL_DARK + 4 },
+  { kind: "block", block: B.PANEL_GRAY, name: "Grey Panel", tile: B.PANEL_GRAY + 4 },
+  { kind: "block", block: B.METAL, name: "Metal Plate", tile: B.METAL + 4 },
+  { kind: "block", block: B.CONCRETE, name: "Concrete", tile: 32 },
+  { kind: "block", block: B.ASPHALT, name: "Asphalt", tile: 31 },
+  { kind: "block", block: B.TINT_GLASS, name: "Tinted Glass", tile: B.TINT_GLASS + 4 },
+  { kind: "block", block: B.TERRA_TEAL, name: "Teal Cladding", tile: B.TERRA_TEAL + 4 },
+  { kind: "block", block: B.NEON_ROD, name: "Neon Strip", tile: B.NEON_ROD + 4 },
+  { kind: "block", block: B.STEEL, name: "Steel Panel", tile: 34 },
 ];
 
 export const isTransparent = (id: number) => id === 0 || !!BLOCKS[id]?.transparent;

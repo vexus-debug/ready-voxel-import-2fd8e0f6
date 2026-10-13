@@ -79,8 +79,8 @@ export class World {
         const u = x0 + lx - LF_X0, v = z0 + lz - LF_Z0;
         if (u < 0 || v < 0 || u >= LF_SIZE || v >= LF_SIZE) continue;
         c[idx(lx, 0, lz)] = B.BEDROCK;
-        for (let y = 1; y < H; y++) c[idx(lx, y, lz)] = y < LF_GROUND - 4 ? B.STONE : 0;
-        const ok = lfColumn(u, v, (y, id) => { if (y < H) c[idx(lx, y, lz)] = id; });
+        for (let y = 1; y < H; y++) c[idx(lx, y, lz)] = y < LF_GROUND - 4 ? B.CONCRETE : 0;
+        const ok = lfColumn(u, v, (y, id) => { if (y < H) c[idx(lx, y, lz)] = remapId(id); });
         if (!ok) for (let y = LF_GROUND - 4; y <= LF_GROUND; y++) c[idx(lx, y, lz)] = B.PANEL_DARK; // placeholder street until the tile streams in
       }
   }
@@ -515,9 +515,6 @@ export class World {
           c[idx(x, h, z)] = B.DIRT;
         }
       }
-    this.stampCastle(cx, cz, c);
-    this.stampKingdomWall(cx, cz, c);
-    this.stampTown(cx, cz, c);
     this.stampCity(cx, cz, c);
     this.stampLinefield(cx, cz, c);
     const e = this.edits[chunkKey(cx, cz)];
@@ -640,7 +637,7 @@ function treeOffset(world: World, X: number, Y: number, Z: number, id: number, o
 /** Linefield de-voxelization: chamfer convex building corners and collapse 1-block staircases
  * into continuous diagonals/curves. Horizontal only so floors and roofs stay level; depends only
  * on the lattice point, so neighbouring faces stay watertight. */
-const isCity = (id: number) => id >= 32 && id <= 54;
+const isCity = (id: number) => id !== 0 && id !== B.BEDROCK;
 function cityOffset(world: World, X: number, Y: number, Z: number, out: number[]) {
   out[0] = out[1] = out[2] = 0;
   const inLF = X >= LF_X0 && X <= LF_X0 + LF_SIZE && Z >= LF_Z0 && Z <= LF_Z0 + LF_SIZE && Y > LF_GROUND;
@@ -712,11 +709,11 @@ function cityMat(id: number, wx: number, wz: number) {
   }
   const inMetro = Math.abs(wx - M_CX) <= C_R && Math.abs(wz - M_CZ) <= C_R;
   if (!inMetro && (wx < LF_X0 || wx >= LF_X0 + LF_SIZE || wz < LF_Z0 || wz >= LF_Z0 + LF_SIZE)) return 0;
-  if (id === B.OFFICE_WINDOW) return 1;
-  if (id === B.STEEL || id === B.CONCRETE) return 2;
+  if (id === B.OFFICE_WINDOW || id === B.GLASS || id === B.WATER) return 1;
   if (id === B.ASPHALT) return 3;
   if (id === B.ROAD_LINE) return 5;
-  return 0;
+  if (id === B.LANTERN) return 4;
+  return 2;
 }
 
 export function buildChunkGeometry(world: World, cx: number, cz: number) {
