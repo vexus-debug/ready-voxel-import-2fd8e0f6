@@ -701,6 +701,24 @@ function smoothCityNormals(g: THREE.BufferGeometry, verts: number[], ox: number,
 
 /** City PBR material class for the chunk shader: 0 none, 1 glass, 2 metal/panel, 3 asphalt, 4 neon, 5 road paint.
  * Applies only to the cyberpunk palette and to modern blocks inside the Linefield bounds. */
+/** Glass/lantern/bar blocks used as railings, curbs and panes in the imported map. */
+const BARRIER_IDS = new Set<number>([B.TINT_GLASS, B.GLASS_CYAN, B.GLASS_MAGENTA, B.GLASS_GREEN, B.SEA_LANTERN, B.GLOWSTONE, B.IRON_BARS, B.GLASS]);
+const isBarrierId = (id: number) => BARRIER_IDS.has(id);
+const BAR_T = 0.14;
+const openCell = (id: number) => id === 0 || isPassable(id);
+/** 1 = thin along x (run follows z), 2 = thin along z, 0 = keep full block (part of a wall/floor). */
+function barrierAxis(world: World, x: number, y: number, z: number, id: number) {
+  const ox = openCell(world.get(x - 1, y, z)) && openCell(world.get(x + 1, y, z));
+  const oz = openCell(world.get(x, y, z - 1)) && openCell(world.get(x, y, z + 1));
+  if (ox && !oz) return 1;
+  if (oz && !ox) return 2;
+  if (ox && oz) {
+    // free-standing post: thin across the axis that has barrier neighbours above/below continuation
+    const up = world.get(x, y + 1, z), dn = world.get(x, y - 1, z);
+    if (openCell(up) || openCell(dn) || up === id || dn === id) return 1;
+  }
+  return 0;
+}
 function cityMat(id: number, wx: number, wz: number) {
   if (id >= 32 && id <= 54) {
     if (id === B.TINT_GLASS || id === B.GLASS_CYAN || id === B.GLASS_MAGENTA || id === B.GLASS_GREEN) return 1;
@@ -843,12 +861,19 @@ export function buildChunkGeometry(world: World, cx: number, cz: number) {
           const sink = isWater && (y + 1 >= H || world.get(wx, y + 1, wz) !== B.WATER) ? 0.12 : 0;
           const tree = id === B.LOG || id === B.LEAVES;
           const city = !nat && !tree && isCity(id);
-          const mc = cityMat(id, wx, wz);
+          const bar = isBarrierId(id) ? barrierAxis(world, wx, y, wz, id) : 0;
+          const mc = bar ? 6 : cityMat(id, wx, wz);
           for (const c of F.c) {
             const X = ox + x + c[0], Y = y + c[1], Z = oz + z + c[2];
-            if (nat) smoothOffset(world, X, Y, Z, off);
+            if (bar) {
+              // hardlight barrier: collapse the cube into a thin continuous energy ribbon
+              off[0] = bar === 1 ? (0.5 - c[0]) * (1 - BAR_T) : 0;
+              off[2] = bar === 2 ? (0.5 - c[2]) * (1 - BAR_T) : 0;
+              off[1] = 0;
+            }
+            else if (nat) smoothOffset(world, X, Y, Z, off);
             else if (tree) treeOffset(world, X, Y, Z, id, off);
-            else if (city) { cityOffset(world, X, Y, Z, off); cityV.push(pos.length / 3); }
+            else if (city && !isBarrierId(id) && !isEmissive(id)) { cityOffset(world, X, Y, Z, off); cityV.push(pos.length / 3); }
             else off[0] = off[1] = off[2] = 0;
             pos.push(X + off[0], Y + off[1] - (c[1] ? sink : 0), Z + off[2]);
             const u = (tc + (c[3] ? 1 - eps : eps)) / ATLAS_COLS;
