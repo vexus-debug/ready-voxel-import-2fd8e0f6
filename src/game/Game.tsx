@@ -736,8 +736,17 @@ if (vCM.x > 0.5) {
   vec3 env = mix(citySky * 0.35, citySky * 1.15, horizon);
   vec2 fu = vCM.yz;
   float grain = cN(vCW.xz * 3.1 + vCW.y * 1.7);
-  if (cls < 1.5) { // reflective glass
-    float mull = max(cLine(fu.x * 2.0 + 0.5, 0.035), cLine(fu.y * 3.0 + 0.5, 0.03));
+  if (cls > 5.5) { // hardlight energy barrier: translucent-looking field, scanlines, glowing edges
+    vec3 hueB = mix(vec3(0.15, 0.95, 1.0), vec3(1.0, 0.25, 0.85), step(0.85, cH(floor(vCW.xz / 16.0))));
+    float scan = 0.5 + 0.5 * sin(vCW.y * 26.0 - uCityTime * 3.0);
+    float sweep = smoothstep(0.92, 1.0, fract((vCW.x + vCW.z) * 0.08 - uCityTime * 0.35));
+    float hex = cLine(vCW.x * 1.5 + vCW.z * 1.5 + vCW.y * 0.8, 0.47) * 0.35;
+    float edge = 1.0 - smoothstep(0.0, 0.08, min(fu.y, 1.0 - fu.y));
+    vec3 c = mix(env * 0.25, hueB * 0.35, 0.6) * (0.7 + 0.3 * scan);
+    c += hueB * (fres * 1.2 + edge * 1.6 + sweep * 0.9 + hex);
+    gl_FragColor.rgb = c;
+  } else if (cls < 1.5) { // smart glass: seamless polarized curtain wall, no frames
+    float mull = 0.0;
     vec3 glass = mix(gl_FragColor.rgb * 0.55, env, 0.25 + 0.65 * fres);
     float spec = pow(max(dot(R, normalize(vec3(0.3, 0.8, 0.2))), 0.0), 60.0);
     glass += spec * citySky * 1.2 * cloudDay;
