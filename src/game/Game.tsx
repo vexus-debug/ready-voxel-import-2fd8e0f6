@@ -10,7 +10,6 @@ import { HUD } from "./HUD";
 import { touch, isTouchDevice } from "./touch";
 import { TouchControls } from "./TouchControls";
 import { useUI } from "./state";
-import { Population } from "./Population";
 import { loading, meshed, setLoading, subscribeLoading } from "./loading";
 import { chunkKey } from "./world";
 import { CityAmenities } from "./CityAmenities";
