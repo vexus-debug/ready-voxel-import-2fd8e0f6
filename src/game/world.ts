@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { CASTLE_DATA, CASTLE_SIZE } from "./castleData";
 import { buildTown, townAt, T_R, T_Y, AIRV } from "./town";
 import { buildCity, cityAt, C_R, C_Y, CAIR } from "./city";
-import { B, BLOCKS, ATLAS_COLS, isTransparent, isPassable, isNatural, isPlant, isEmissive } from "./blocks";
+import { B, BLOCKS, ATLAS_COLS, isTransparent, isPassable, isNatural, isPlant, isEmissive, remapId } from "./blocks";
 import { lfColumn, onLinefieldTile, LF_X0, LF_Z0, LF_SIZE, LF_TS, LF_GROUND, LF_CX, LF_CZ } from "./linefield";
 import { propHit } from "./propCollide";
 
