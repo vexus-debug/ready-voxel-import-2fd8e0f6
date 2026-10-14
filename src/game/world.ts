@@ -702,7 +702,8 @@ function smoothCityNormals(g: THREE.BufferGeometry, verts: number[], ox: number,
 /** City PBR material class for the chunk shader: 0 none, 1 glass, 2 metal/panel, 3 asphalt, 4 neon, 5 road paint.
  * Applies only to the cyberpunk palette and to modern blocks inside the Linefield bounds. */
 /** Glass/lantern/bar blocks used as railings, curbs and panes in the imported map. */
-const BARRIER_IDS = new Set<number>([B.TINT_GLASS, B.GLASS_CYAN, B.GLASS_MAGENTA, B.GLASS_GREEN, B.SEA_LANTERN, B.GLOWSTONE, B.IRON_BARS, B.GLASS]);
+const BARRIER_IDS = new Set<number>([B.TINT_GLASS, B.GLASS_CYAN, B.GLASS_MAGENTA, B.GLASS_GREEN, B.SEA_LANTERN, B.GLOWSTONE, B.IRON_BARS, B.GLASS, B.NEON_ROD, B.NEON_MAGENTA]);
+const isNeonId = (id: number) => id === B.NEON_ROD || id === B.NEON_MAGENTA;
 const isBarrierId = (id: number) => BARRIER_IDS.has(id);
 const BAR_T = 0.14;
 const openCell = (id: number) => id === 0 || isPassable(id);
@@ -715,8 +716,10 @@ function barrierAxis(world: World, x: number, y: number, z: number, id: number) 
   if (ox && oz) {
     // free-standing post: thin across the axis that has barrier neighbours above/below continuation
     const up = world.get(x, y + 1, z), dn = world.get(x, y - 1, z);
+    if (isNeonId(id)) return 3; // free-standing light: slim cantilevered pylon
     if (openCell(up) || openCell(dn) || up === id || dn === id) return 1;
   }
+  if (isNeonId(id)) return openCell(world.get(x, y + 1, z)) ? 4 : 3; // flush lumiline strip on surfaces
   return 0;
 }
 function cityMat(id: number, wx: number, wz: number) {
@@ -867,9 +870,9 @@ export function buildChunkGeometry(world: World, cx: number, cz: number) {
             const X = ox + x + c[0], Y = y + c[1], Z = oz + z + c[2];
             if (bar) {
               // hardlight barrier: collapse the cube into a thin continuous energy ribbon
-              off[0] = bar === 1 ? (0.5 - c[0]) * (1 - BAR_T) : 0;
-              off[2] = bar === 2 ? (0.5 - c[2]) * (1 - BAR_T) : 0;
-              off[1] = 0;
+              off[0] = bar === 1 || bar === 3 ? (0.5 - c[0]) * (1 - BAR_T) : 0;
+              off[2] = bar === 2 || bar === 3 ? (0.5 - c[2]) * (1 - BAR_T) : 0;
+              off[1] = bar === 4 ? (c[1] ? -(1 - 0.08) : 0) : 0;
             }
             else if (nat) smoothOffset(world, X, Y, Z, off);
             else if (tree) treeOffset(world, X, Y, Z, id, off);
@@ -912,7 +915,16 @@ export function collides(world: World, p: THREE.Vector3, hw: number, h: number) 
   for (let x = Math.floor(p.x - hw + e); x <= Math.floor(p.x + hw - e); x++)
     for (let y = Math.floor(p.y + e); y <= Math.floor(p.y + h - e); y++)
       for (let z = Math.floor(p.z - hw + e); z <= Math.floor(p.z + hw - e); z++)
-        if (!isPassable(world.get(x, y, z))) return true;
+      {
+        const id = world.get(x, y, z);
+        if (isPassable(id)) continue;
+        const bar = isBarrierId(id) ? barrierAxis(world, x, y, z, id) : 0;
+        if (!bar) return true;
+        // thin barrier/strip: test against its real slim box
+        const tx = bar === 1 || bar === 3 ? BAR_T / 2 : 0.5, tz = bar === 2 || bar === 3 ? BAR_T / 2 : 0.5;
+        const ty = bar === 4 ? 0.08 : 1;
+        if (p.x + hw > x + 0.5 - tx && p.x - hw < x + 0.5 + tx && p.z + hw > z + 0.5 - tz && p.z - hw < z + 0.5 + tz && p.y < y + ty && p.y + h > y) return true;
+      }
   return propHit(p.x - hw, p.y, p.z - hw, p.x + hw, p.y + h, p.z + hw);
 }
 

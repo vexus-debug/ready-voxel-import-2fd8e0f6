@@ -49,11 +49,6 @@ export function HUD() {
       {/* hurt flash */}
       <div className="absolute inset-0 bg-destructive" style={{ opacity: ui.hurt * 0.35 }} />
 
-      {/* top bar */}
-      <div className="absolute left-4 top-4 rounded-md bg-background/60 px-3 py-1.5 text-xl leading-none">
-        {isNight ? "☾ Night" : "☀ Day"} · {clockLabel(ui.time)}
-      </div>
-
 
       {/* crosshair */}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl leading-none drop-shadow">+</div>
@@ -95,8 +90,8 @@ export function HUD() {
       {!ui.locked && !ui.dead && !ui.kioskOpen && (
         <div className="pointer-events-auto absolute inset-0 flex items-center justify-center bg-background/70 backdrop-blur-sm">
           <div className="w-[min(92vw,460px)] rounded-lg border border-border bg-card p-6 text-center text-card-foreground">
-            <h1 className="text-5xl leading-none tracking-wide text-primary">VOXELCRAFT</h1>
-            <p className="mt-2 text-lg text-muted-foreground">Survive the night. Build anything.</p>
+            <h1 className="text-5xl leading-none tracking-wide text-primary">LINEFIELD</h1>
+            <p className="mt-2 text-lg text-muted-foreground">Explore the megacity. Build anything.</p>
             <button onClick={lock} className="mt-5 w-full rounded-md bg-primary py-3 text-2xl text-primary-foreground hover:opacity-90">
               {isTouchDevice() ? "Tap to play" : "Click to play"}
             </button>
@@ -112,7 +107,7 @@ export function HUD() {
               <span className="text-muted-foreground">Mobile</span><span>Left: move · Right: look</span>
             </div>
             <p className="mt-3 text-base text-muted-foreground">
-              Use the right tool to mine faster. Zombies come out at night.
+              Break panels by hand, place modules anywhere.
             </p>
             <div className="mt-4 flex gap-2">
               <button onClick={saveGame} className="flex-1 rounded-md border border-border py-2 text-lg hover:bg-accent">

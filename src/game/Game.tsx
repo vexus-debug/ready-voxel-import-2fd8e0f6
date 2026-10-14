@@ -697,7 +697,6 @@ function Scene() {
       <Clouds />
       <Chunks material={material} />
       <Player zt={zt} />
-      <Zombies target={zt} />
     </>
   );
 }
