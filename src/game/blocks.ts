@@ -92,7 +92,7 @@ export const BLOCKS: Record<number, BlockDef> = {
   [B.STONE_BRICK]: { name: "Castle Stone Brick", hardness: 5, tool: "pickaxe", tiles: [24, 24, 24], drop: B.STONE_BRICK },
   [B.MOSSY_BRICK]: { name: "Mossy Stone Brick", hardness: 5, tool: "pickaxe", tiles: [25, 25, 25], drop: B.STONE_BRICK },
   [B.TIMBER]: { name: "Spruce Roof Timber", hardness: 2, tool: "axe", tiles: [26, 26, 26], drop: B.TIMBER },
-  [B.LANTERN]: { name: "Iron Lantern", hardness: 0.5, tool: null, tiles: [27, 27, 27], drop: B.LANTERN },
+  [B.LANTERN]: { name: "Lumiline", hardness: 0.5, tool: null, tiles: [27, 27, 27], drop: B.LANTERN },
   [B.DOOR]: { name: "Oak Door", hardness: 2, tool: "axe", tiles: [8, 28, 8], drop: B.DOOR, transparent: true },
   [B.PLASTER]: { name: "Lime Plaster", hardness: 1.5, tool: "pickaxe", tiles: [29, 29, 29], drop: B.PLASTER },
   [B.THATCH]: { name: "Straw Thatch", hardness: 0.6, tool: null, tiles: [30, 30, 30], drop: B.THATCH },
@@ -110,7 +110,7 @@ const CYBER: [number, string, number, Tool | null, boolean?][] = [
   [B.TERRA_RED, "Red Cladding", 3, "pickaxe"], [B.TERRA_ORANGE, "Orange Cladding", 3, "pickaxe"], [B.TERRA_YELLOW, "Yellow Cladding", 3, "pickaxe"],
   [B.TERRA_GREEN, "Green Cladding", 3, "pickaxe"], [B.TERRA_BLUE, "Blue Cladding", 3, "pickaxe"], [B.TERRA_PURPLE, "Violet Cladding", 3, "pickaxe"],
   [B.TINT_GLASS, "Tinted Glass", 0.4, null], [B.GLASS_CYAN, "Cyan Neon Glass", 0.4, null], [B.GLASS_MAGENTA, "Magenta Neon Glass", 0.4, null],
-  [B.IRON_BARS, "Iron Bars", 3, "pickaxe", true], [B.SEA_LANTERN, "Sea Lantern", 0.5, null], [B.GLOWSTONE, "Glowstone", 0.5, null],
+  [B.IRON_BARS, "Iron Bars", 3, "pickaxe", true], [B.SEA_LANTERN, "Lumiline", 0.5, null], [B.GLOWSTONE, "Lumiline", 0.5, null],
   [B.NEON_ROD, "Neon Strip", 0.3, null], [B.NEON_MAGENTA, "Magenta Neon", 0.3, null], [B.METAL, "Metal Plate", 5, "pickaxe"],
   [B.GLASS_GREEN, "Amber Neon Glass", 0.4, null], [B.TERRA_BROWN, "Brown Cladding", 3, "pickaxe"],
 ];
@@ -123,7 +123,7 @@ export const REMAP: Record<number, number> = {
   [B.BRICK]: B.TERRA_TEAL, [B.STONE_BRICK]: B.PANEL_GRAY, [B.MOSSY_BRICK]: B.PANEL_GRAY, [B.STONE]: B.PANEL_GRAY, [B.PLASTER]: B.PANEL_GRAY,
   [B.GLASS]: B.TINT_GLASS, [B.IRON_BARS]: B.METAL,
   [B.COBBLE]: B.CONCRETE, [B.BOULDER]: B.CONCRETE, [B.DIRT]: B.ASPHALT, [B.GRASS]: B.ASPHALT, [B.JUNGLE_GRASS]: B.ASPHALT, [B.SAND]: B.CONCRETE,
-  [B.LANTERN]: B.NEON_ROD, [B.WATER]: B.TINT_GLASS,
+  [B.LANTERN]: B.NEON_ROD, [B.SEA_LANTERN]: B.NEON_ROD, [B.GLOWSTONE]: B.NEON_ROD, [B.WATER]: B.TINT_GLASS,
   [B.LEAVES]: 0, [B.TALLGRASS]: 0, [B.FLOWER]: 0, [B.REED]: 0, [B.ALOE]: 0, [B.FERN]: 0,
 };
 // purge legacy textures: legacy blocks render with their modern counterpart's metal/panel/composite tiles

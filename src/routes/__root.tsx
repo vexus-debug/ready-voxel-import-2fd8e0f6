@@ -78,10 +78,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Voxelcraft" },
+      { title: "Linefield" },
       { name: "description", content: "A browser voxel sandbox survival game." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Voxelcraft" },
+      { property: "og:title", content: "Linefield" },
       { property: "og:description", content: "A browser voxel sandbox survival game." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
